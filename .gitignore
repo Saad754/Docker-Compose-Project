@@ -1,2 +1,4 @@
 Conf.env
 keycloak.env
+mysql.env
+springboot.env
