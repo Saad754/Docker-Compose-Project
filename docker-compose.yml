@@ -1,0 +1,65 @@
+services:
+
+  mysql:
+    image: mysql:8
+    restart: unless-stopped
+    env_file:
+      - Conf.env
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+  redis:
+    image: redis:7.2
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 25s
+    volumes:
+      - redis_data:/data
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0
+    restart: unless-stopped
+    command: start-dev --import-realm
+    env_file:
+      - keycloak.env
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health/ready || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+      - ./realm.json:/opt/keycloak/data/import/realm.json
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+volumes:
+  db_data:
+  redis_data:
+  keycloak_data:
+networks:
+  app-network:
+    driver: bridge
