@@ -78,6 +78,22 @@ services:
       keycloak:
         condition: service_healthy
 
+  react:
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    networks:
+      - app-network 
+    healthcheck:
+      test: ["CMD-SHELL", "cat /proc/1/cmdline | grep -q nginx || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    depends_on:
+      springboot:
+        condition: service_healthy
 volumes:
   db_data:
   redis_data:
