@@ -60,3 +60,12 @@ For example:
 ## Production Note
 
 Note that the enviromental variables arent stored securely (plain text) . In a production enviorment they should be stored using a tool like HashiCorp Vault
+
+## Production Keycloak Notes
+
+- Replace `start-dev` with `start` in docker-compose.yml
+- Set up a reverse proxy (Nginx) in front of Keycloak to handle HTTPS
+- Never expose Keycloak port 8080 publicly
+- Disable admin console access from public internet
+- Use strong passwords for all credentials
+- Store all secrets in HashiCorp Vault instead of env files

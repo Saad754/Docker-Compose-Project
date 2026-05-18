@@ -1,6 +1,6 @@
 services:
 
-  mysql:
+  mysql:  # Application database and Keycloak data storage
     image: mysql:8
     restart: unless-stopped
     env_file:
@@ -18,7 +18,8 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
-  redis:
+
+  redis:  # Caching layer for Spring Boot
     image: redis:7.2
     restart: unless-stopped
     ports:
@@ -34,9 +35,10 @@ services:
     volumes:
       - redis_data:/data
 
-  keycloak:
+  keycloak:  # Authentication and authorization server
     image: quay.io/keycloak/keycloak:23.0
     restart: unless-stopped
+    # Development only - replace with 'start' and configure HTTPS for production
     command: start-dev --import-realm
     env_file:
       - keycloak.env
@@ -56,6 +58,7 @@ services:
     depends_on:
       mysql:
         condition: service_healthy      
+
   springboot:
     image: springcommunity/spring-framework-petclinic #placeholder image
     restart: unless-stopped
